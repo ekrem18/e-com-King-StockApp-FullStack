@@ -1,4 +1,4 @@
-<h1>React-Redux Library App</h1>
+<h1>e-com King Stock App</h1>
 <br>
 <h3>Author</h3>
 
