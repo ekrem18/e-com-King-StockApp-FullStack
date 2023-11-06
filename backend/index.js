@@ -29,14 +29,16 @@ app.use(express.json())
 
 //CORS npm i cors
 const cors = require('cors')
+
 app.use(cors())
+
 /* app.use(cors({
      "origin": "*",
-     "methods": "GET,HEAD,PUT,PATCH,POST,DELETE",
+     "methods": "GET,HEAD,PUT,PATCH,POST,DELETE",                   //---> default ayarlar bu şekilde
      "preflightContinue": false,
      "optionsSuccessStatus": 204
  })) */
- 
+
 /*
 
 // Call static uploadFile:
