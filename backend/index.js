@@ -27,6 +27,18 @@ dbConnection()
 // Accept JSON:
 app.use(express.json())
 
+//CORS npm i cors
+const cors = require('cors')
+app.use(cors())
+/* app.use(cors({
+     "origin": "*",
+     "methods": "GET,HEAD,PUT,PATCH,POST,DELETE",
+     "preflightContinue": false,
+     "optionsSuccessStatus": 204
+ })) */
+ 
+/*
+
 // Call static uploadFile:
 app.use('/upload', express.static('./upload'))
 
