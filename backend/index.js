@@ -31,6 +31,9 @@ app.use(express.json())
 const cors = require('cors')
 
 app.use(cors())
+// app.use(require('cors')({
+//     origin: ["http://localhost:3000", "http://localhost:4173", "http://localhost:5173"]
+// }))
 
 /* app.use(cors({
      "origin": "*",
@@ -39,8 +42,7 @@ app.use(cors())
      "optionsSuccessStatus": 204
  })) */
 
-/*
-
+ 
 // Call static uploadFile:
 app.use('/upload', express.static('./upload'))
 

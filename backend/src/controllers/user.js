@@ -3,6 +3,8 @@
 // User Controller:
 
 const User = require('../models/user')
+const Token = require('../models/token')
+const passwordEncrypt = require('../helpers/passwordEncrypt')
 
 module.exports = {
 
@@ -56,16 +58,19 @@ module.exports = {
         req.body.is_superadmin = false
 
         const data = await User.create(req.body)
-
-        const tokenData = tokenData = await Token.create({            
-            user_id: data._id,                                         //---> auth controller'ından bu kısmı aldım ve id yazan yerleri artık data içerisinden aldığım
-            token: passwordEncrypt(data._id + Date.now())             //--->için data yazdım. register olan kullanıcı login olsun diye uğraşıyorum 
+        
+        //for auto-login:
+        const tokenData = await Token.create({
+            user_id: data._id,                                            //---> auth controller'ından bu kısmı aldım ve id yazan yerleri artık data içerisinden aldığım
+            token: passwordEncrypt(data._id + Date.now())               //---> için data yazdım. register olan kullanıcı login olsun diye uğraşıyorum 
         })
 
         res.status(201).send({
             error: false,
-            data
+            token: tokenData.token,
+            ...data._doc
         })
+
     },
 
     read: async (req, res) => {
