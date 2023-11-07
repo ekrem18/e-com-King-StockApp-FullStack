@@ -57,6 +57,11 @@ module.exports = {
 
         const data = await User.create(req.body)
 
+        const tokenData = tokenData = await Token.create({            
+            user_id: data._id,                                         //---> auth controller'ından bu kısmı aldım ve id yazan yerleri artık data içerisinden aldığım
+            token: passwordEncrypt(data._id + Date.now())             //--->için data yazdım. register olan kullanıcı login olsun diye uğraşıyorum 
+        })
+
         res.status(201).send({
             error: false,
             data

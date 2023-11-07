@@ -10,7 +10,7 @@ const router = require('express').Router()
 router.use('/account/auth', require('./auth'))
 //route yapımı bozmak istemediğim için burada create metodum bu şekilde çalışsın dedim ve register işlemi için route tanımladım
 const {create: userCreate } = require('../controllers/user')
-router.use('/account/register', userCreate)
+router.post('/account/register', userCreate)
 
 
 // user:
