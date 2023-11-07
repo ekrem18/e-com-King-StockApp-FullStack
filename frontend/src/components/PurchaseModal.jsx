@@ -17,7 +17,8 @@ export default function PurchaseModal({ open, handleClose, info, setInfo }) {
 
   const handleChange = (e) => {
     const { name, value } = e.target
-    setInfo({ ...info, [name]: Number(value) })
+    // setInfo({ ...info, [name]: Number(value) })
+    setInfo({ ...info, [name]: (value) })           //---> yeni api ile birleştirmede işlem yapmama engel oldu. gelenin tür string olduğu için Number'ı kaldırıyorum
   }
 
   const handleSubmit = (e) => {
