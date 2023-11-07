@@ -42,7 +42,7 @@ app.use(cors())
      "optionsSuccessStatus": 204
  })) */
 
- 
+
 // Call static uploadFile:
 app.use('/upload', express.static('./upload'))
 
