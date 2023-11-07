@@ -44,11 +44,11 @@ const icons = [
     icon: <InventoryIcon />,
     url: "/stock/products/",
   },
-  {
-    title: "Admin Panel",
-    icon: <SupervisorAccountIcon />,
-    url: "https://13121.fullstack.clarusway.com/admin",
-  },
+  // {
+  //   title: "Admin Panel",
+  //   icon: <SupervisorAccountIcon />,
+  //   url: "https://13121.fullstack.clarusway.com/admin",
+  // },
 ];
 
 const MenuListItems = () => {
