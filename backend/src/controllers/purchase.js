@@ -96,7 +96,12 @@ module.exports = {
             const updateProduct = await Product.updateOne({ _id: currentPurchase.product_id }, { $inc: { stock: +quantity } })
         }
 
-        const firms = await Purchase.findOne({ _id: req.params.id })
+        if (req.body?.firm) {
+            const firm = await Purchase.findOne({ _id: req.params.id })
+           
+        }
+
+        
 
         // Update:
         const data = await Purchase.updateOne({ _id: req.params.id }, req.body, { runValidators: true })
