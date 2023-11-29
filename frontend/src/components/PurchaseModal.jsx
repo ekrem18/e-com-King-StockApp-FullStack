@@ -113,7 +113,7 @@ export default function PurchaseModal({ open, handleClose, info, setInfo }) {
                 label="Product"
                 id="product-select"
                 name="product_id"
-                value={info?.product_id._id  || ""}
+                value={info?.product_id._id  || ""}                     //--->info nesnesi içinde firm_id değeri bir obje içinde bulunuyordu. MenuItem'un value özelliğine sadece firma _id'sini ekledim ki obje olarak kullanabileyim MUI hata vermesin
                 onChange={handleChange}
                 required
               >
