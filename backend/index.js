@@ -28,19 +28,19 @@ dbConnection()
 app.use(express.json())
 
 //CORS npm i cors
-const cors = require('cors')
+// const cors = require('cors')
 
-app.use(cors())
-// app.use(require('cors')({
-//     origin: ["http://localhost:3000", "http://localhost:4173", "http://localhost:5173"]
-// }))
+// app.use(cors())
+app.use(require('cors')({
+origin: ["http://localhost:3000", "http://localhost:4173", "http://localhost:5173"]
+}))
 
-/* app.use(cors({
-     "origin": "*",
-     "methods": "GET,HEAD,PUT,PATCH,POST,DELETE",                   //---> default ayarlar bu şekilde
-     "preflightContinue": false,
-     "optionsSuccessStatus": 204
- })) */
+// app.use(cors({
+//      "origin": "*",
+//      "methods": "GET,HEAD,PUT,PATCH,POST,DELETE",                   //---> default ayarlar bu şekilde
+//      "preflightContinue": false,
+//      "optionsSuccessStatus": 204
+//  })) 
 
 
 // Call static uploadFile:
