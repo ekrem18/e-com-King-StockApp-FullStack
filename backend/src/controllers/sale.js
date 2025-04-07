@@ -2,7 +2,7 @@
 /* ------------------------------------------------------*/
 // Sale Controller:
 
-const Product = require('../models/product')                                        //---> çekmeyi unutma zira yapacağın işlem product ile içli dışlı
+const Product = require('../models/product')  //---> çekmeyi unutma zira yapacağın işlem product ile içli dışlı
 const Sale = require('../models/sale')
 
 module.exports = {
@@ -23,12 +23,6 @@ module.exports = {
 
         const data = await res.getModelList(Sale, {}, ['brand_id', 'product_id'])
 
-        // res.status(200).send({
-        //     error: false,
-        //     details: await res.getModelListDetails(Sale),
-        //     data
-        // })
-
         // FOR REACT PROJECT:
         res.status(200).send(data)
     },
@@ -45,18 +39,18 @@ module.exports = {
         */
 
         // Auto add user_id to req.body:
-        req.body.user_id = req.user?._id                                //---> user_id'yi ayrıca göndermek istemiyorum. body'e user_id'yi  req.user?._id'den koy
+        req.body.user_id = req.user?._id  //---> user_id'yi ayrıca göndermek istemiyorum. body'e user_id'yi req.user?._id'den koy
 
         // güncel stok görüntüle:
         const currentProduct = await Product.findOne({ _id: req.body.product_id })
 
-        if (currentProduct.stock >= req.body.quantity) {                //---> Güncel stok satış yapılmak istenen adette veya fazlaysa içeri gir
+        if (currentProduct.stock >= req.body.quantity) {  //---> Güncel stok satış yapılmak istenen adette veya fazlaysa içeri gir
 
             // Create:
-            const data = await Sale.create(req.body)                    //---> Stok yeterli geldi satışa başladım
+            const data = await Sale.create(req.body)  //---> Stok yeterli geldi satışa başladım
 
             // satışla beraber stok güncelliyorum:
-            const updateProduct = await Product.updateOne({ _id: data.product_id }, { $inc: { stock: -data.quantity } })   //---> yaptım çünkü satış yaptım
+            const updateProduct = await Product.updateOne({ _id: data.product_id }, { $inc: { stock: -data.quantity } })  //---> yaptım çünkü satış yaptım
 
             res.status(201).send({
                 error: false,
@@ -64,7 +58,6 @@ module.exports = {
             })
 
         } else {
-
             res.errorStatusCode = 422
             throw new Error('The current stock does not enough for requested quantity for sale.', { cause: { currentProduct } })
         }
@@ -99,18 +92,29 @@ module.exports = {
         if (req.body?.quantity) {
             // varsa adetle beraber güncel stoğa ulaşıyorum:
             const currentSale = await Sale.findOne({ _id: req.params.id })
+
             // farka ulaşıyorum:
-            const quantity = req.body.quantity - currentSale.quantity
-            //Filtreleme alanımda ikinci parametre-koşul olarak 2.yi de ekliyorum, stok büyük veya eşittir "gte" diyorum ,, öyleyse bu işlemi yap👇
-            const updateProduct = await Product.updateOne({ _id: currentSale.product_id, stock: { $gte: quantity } }, { $inc: { stock: -quantity } })
-            //.... id'yi stock >= quantity ye getir dediğim için otomatik olarak stok doğrulaması da yapmış oldum👆
-            
-            // console.log(updateProduct)
-            
-            // stok yeterli değilse:
-            if (updateProduct.modifiedCount == 0) { // Check Limit ,, modifedCount versini yukarıda ckg içeriisnden aldım. mevcut bir bilgi..
-                res.errorStatusCode = 422
-                throw new Error('There is not enough stock for this sale.')
+            const quantityDifference = req.body.quantity - currentSale.quantity  // mevcut satış ile yeni satış arasındaki fark
+
+            // Stok güncelleme işlemi
+            if (quantityDifference !== 0) {
+                const currentProduct = await Product.findOne({ _id: currentSale.product_id })
+
+                // Stok kontrolü yapılır (mevcut stok, satış sonrası stok ile tutarlı olmalı)
+                if (currentProduct.stock >= quantityDifference) {
+                    const updateProduct = await Product.updateOne(
+                        { _id: currentSale.product_id },
+                        { $inc: { stock: -quantityDifference } }  // Stok güncelleniyor
+                    )
+
+                    if (updateProduct.modifiedCount === 0) {
+                        res.errorStatusCode = 422
+                        throw new Error('Not enough stock for this sale update.')
+                    }
+                } else {
+                    res.errorStatusCode = 422
+                    throw new Error('Not enough stock to complete the sale update.')
+                }
             }
         }
 
@@ -132,13 +136,15 @@ module.exports = {
 
         // get current stock quantity from the Sale:
         const currentSale = await Sale.findOne({ _id: req.params.id })
-        // console.log(currentSale)
 
         // satış iptal/silme:
         const data = await Sale.deleteOne({ _id: req.params.id })
 
-        // set stock (quantity) when Sale process:                                    //aşağıyı artı yapmamın sebebi satış silindiğinde/İPTAL olduğunda stok artar
-        const updateProduct = await Product.updateOne({ _id: currentSale.product_id }, { $inc: { stock: +currentSale.quantity } })
+        // set stock (quantity) when Sale process:  //aşağıyı artı yapmamın sebebi satış silindiğinde/İPTAL olduğunda stok artar
+        const updateProduct = await Product.updateOne(
+            { _id: currentSale.product_id },
+            { $inc: { stock: currentSale.quantity } }  // Stok tekrar arttırılıyor
+        )
 
         res.status(data.deletedCount ? 204 : 404).send({
             error: !data.deletedCount,
