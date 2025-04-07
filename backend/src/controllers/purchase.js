@@ -23,12 +23,6 @@ module.exports = {
 
         const data = await res.getModelList(Purchase, {}, ['firm_id', 'brand_id', 'product_id'])
 
-        // res.status(200).send({
-        //     error: false,
-        //     details: await res.getModelListDetails(Purchase),
-        //     data
-        // })
-        
         // FOR REACT PROJECT:
         res.status(200).send(data)
     },
@@ -45,15 +39,18 @@ module.exports = {
         */
 
         // Auto add user_id to req.body:
-        req.body.user_id = req.user?._id                                //---> user_id'yi ayrıca göndermek istemiyorum. body'e user_id'yi  req.user?._id'den koy
+        req.body.user_id = req.user?._id  //---> user_id'yi ayrıca göndermek istemiyorum. body'e user_id'yi req.user?._id'den koy
 
         // Create:
         const data = await Purchase.create(req.body)
 
         // set stock (quantity) when Purchase process:  
-        //1) Purchase yaparken işlem body içerisinde bir product id gidiyor. onu seçiyorum. yularıda zaten dayaı oluşturdum create yaptım
-        //2) inc: aslında toplama işlemi. + koymasam da olabilir.  - de koyabilirim mümkün. product içindeki stock'u adet kadar arttır diyorum
-        const updateProduct = await Product.updateOne({ _id: data.product_id }, { $inc: { stock: +data.quantity } })
+        // 1) Purchase yaparken işlem body içerisinde bir product id gidiyor. onu seçiyorum. yukarıda zaten data oluşturuldu
+        // 2) $inc işlemi ile stok arttırılacak (toplama işlemi).
+        const updateProduct = await Product.updateOne(
+            { _id: data.product_id }, 
+            { $inc: { stock: data.quantity } }  // Stok arttırılıyor
+        )
 
         res.status(201).send({
             error: false,
@@ -87,17 +84,23 @@ module.exports = {
             }
         */
 
-        if (req.body?.quantity) {                                               //---> adet güncellemesi yapıyorsam
-            // güncellemeden önceki güncel stok burası
+        if (req.body?.quantity) {  //---> adet güncellemesi yapıyorsam
+            // Güncel stok verisini alıyorum:
             const currentPurchase = await Purchase.findOne({ _id: req.params.id })
-            // güncellenecek veriyle eski adet arasındaki fark:
-            const quantity = req.body.quantity - currentPurchase.quantity
-            // çıkan sonuçlara göre de güncelleme yaptığım alan:
-            const updateProduct = await Product.updateOne({ _id: currentPurchase.product_id }, { $inc: { stock: +quantity } })
+
+            // Eski ve yeni adet arasındaki fark:
+            const quantityDifference = req.body.quantity - currentPurchase.quantity
+
+            // Eğer adet farkı varsa, stok güncellenmeli:
+            if (quantityDifference !== 0) {
+                const updateProduct = await Product.updateOne(
+                    { _id: currentPurchase.product_id },
+                    { $inc: { stock: quantityDifference } }  // Fark kadar stok güncelleniyor
+                )
+            }
         }
 
-
-        // Update:
+        // Update işlemi:
         const data = await Purchase.updateOne({ _id: req.params.id }, req.body, { runValidators: true })
 
         res.status(202).send({
@@ -113,15 +116,17 @@ module.exports = {
             #swagger.summary = "Delete Purchase"
         */
 
-        // get current stock quantity from the Purchase:
+        // Mevcut stok miktarını al:
         const currentPurchase = await Purchase.findOne({ _id: req.params.id })
-      
 
-        // Delete:
+        // Delete işlemi:
         const data = await Purchase.deleteOne({ _id: req.params.id })
 
-        // set stock (quantity) when Purchase:
-        const updateProduct = await Product.updateOne({ _id: currentPurchase.product_id }, { $inc: { stock: -currentPurchase.quantity } })
+        // Satın alma silindiğinde stok tekrar azaltılıyor:
+        const updateProduct = await Product.updateOne(
+            { _id: currentPurchase.product_id },
+            { $inc: { stock: -currentPurchase.quantity } }  // Satın alma iptal olduğunda stok geri alınıyor
+        )
 
         res.status(data.deletedCount ? 204 : 404).send({
             error: !data.deletedCount,
