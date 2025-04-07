@@ -95,4 +95,39 @@ export default function SaleModal({ open, handleClose, info, setInfo }) {
                 Add New Product
               </MenuItem>
               <hr />
-              {products?.map
+              {products?.map((item) => (
+                <MenuItem key={item.id} value={item.id}>
+                  {item.name}
+                </MenuItem>
+              ))}
+            </Select>
+          </FormControl>
+
+          <TextField
+            label="Quantity"
+            name="quantity"
+            type="number"
+            variant="outlined"
+            InputProps={{ inputProps: { min: 0 } }}
+            value={info.quantity || ""}
+            onChange={handleChange}
+            required
+          />
+          <TextField
+            label="Price"
+            name="price"
+            type="number"
+            variant="outlined"
+            InputProps={{ inputProps: { min: 0 } }}
+            value={info.price || ""}
+            onChange={handleChange}
+            required
+          />
+          <Button type="submit" variant="contained" size="large">
+            {info?.id ? "Update Sale" : "Add New Sale"}
+          </Button>
+        </Box>
+      </Box>
+    </Modal>
+  )
+}
