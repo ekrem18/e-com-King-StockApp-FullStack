@@ -25,11 +25,11 @@ const BrandCard = ({ brand, setOpen, setInfo }) => {
       <CardHeader title={brand?.name} />
 
       <CardMedia
-        image={brand?.image}
-        sx={{ p: 1, objectFit: "contain", height: "250px" }}
-        component="img"
-        alt="brand-img"
-      />
+  component="img"
+  alt="brand-img"
+  image={brand?.image || "fallback_image_url"} 
+  sx={{ p: 1, objectFit: "contain", height: "250px" }}
+/>
 
       <CardActions sx={flex}>
         <EditIcon
